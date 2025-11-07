@@ -201,12 +201,20 @@ if (!TEAM_CONFIG.some(t => t.key === activeTeam)) {
     activeTeam = TEAM_CONFIG[0].key;
 }
 
-// İlk çizimler
+// Güvenli render yardımcıları
+function safeRenderDashboard() {
+    try { renderDashboard(); } catch (e) { console.error("renderDashboard hata", e); }
+}
+function safeRenderAdmin() {
+    try { renderAdmin(); } catch (e) { console.error("renderAdmin hata", e); }
+}
+
+// İlk çizimler: nav olaylarını önce kur, sonra güvenli render yap
+attachNavEvents();
 buildTeamSelector();
 renderTableSettings();
-renderDashboard();
-renderAdmin();
-attachNavEvents();
+safeRenderDashboard();
+safeRenderAdmin();
 attachGlobalEvents();
 attachGlobalAlignButton();
 attachTableSettingsToggle();
@@ -705,6 +713,12 @@ function attachNavEvents() {
                 view.classList.toggle("view--active", view.id === targetId);
             });
             navButtons.forEach((b) => b.classList.toggle("nav-btn--active", b === btn));
+            // Hedef görünüme geçerken ilgili bölümü güvenli şekilde yeniden çiz
+            if (targetId === "admin") {
+                safeRenderAdmin();
+            } else {
+                safeRenderDashboard();
+            }
         });
     });
 }
