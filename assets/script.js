@@ -706,21 +706,39 @@ function parseExcelAmount(value) {
 }
 
 function attachNavEvents() {
-    navButtons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const targetId = btn.dataset.target;
-            document.querySelectorAll(".view").forEach((view) => {
-                view.classList.toggle("view--active", view.id === targetId);
-            });
-            navButtons.forEach((b) => b.classList.toggle("nav-btn--active", b === btn));
-            // Hedef görünüme geçerken ilgili bölümü güvenli şekilde yeniden çiz
-            if (targetId === "admin") {
-                safeRenderAdmin();
-            } else {
-                safeRenderDashboard();
-            }
+    const nav = document.querySelector(".topbar__nav");
+    if (!nav) return;
+
+    function setActiveView(targetId) {
+        const targetView = document.getElementById(targetId);
+        if (!targetView) return;
+        document.querySelectorAll(".view").forEach((view) => {
+            view.classList.toggle("view--active", view === targetView);
         });
+        navButtons.forEach((b) => {
+            const isActive = b.dataset.target === targetId;
+            b.classList.toggle("nav-btn--active", isActive);
+            b.setAttribute("aria-current", isActive ? "page" : "false");
+        });
+        if (targetId === "admin") {
+            safeRenderAdmin();
+        } else {
+            safeRenderDashboard();
+        }
+    }
+
+    nav.addEventListener("click", (e) => {
+        const btn = e.target.closest(".nav-btn");
+        if (!btn) return;
+        e.preventDefault();
+        const targetId = btn.dataset.target;
+        if (!targetId) return;
+        setActiveView(targetId);
     });
+
+    // Başlangıç görünümünü sağlam şekilde ayarla
+    const initialTarget = document.querySelector(".nav-btn.nav-btn--active")?.dataset.target || "dashboard";
+    setActiveView(initialTarget);
 }
 
 function buildTeamSelector() {
