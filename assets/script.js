@@ -126,6 +126,17 @@ function formatMonthLabel(value) {
     return `${name} ${y}`;
 }
 
+// Dashboard kart alt başlığı için: seçilen ayı "<Ay> Prim Tablosu" olarak biçimlendir
+function formatTableSubtitle(value) {
+    if (!value || typeof value !== "string" || !/^[0-9]{4}-[0-9]{2}$/.test(value)) {
+        return "Prim Tablosu";
+    }
+    const [, m] = value.split("-");
+    const idx = Number(m) - 1;
+    const name = MONTHS_TR[idx] || m;
+    return `${name} Prim Tablosu`;
+}
+
 function loadSelectedMonth() {
     try {
         const saved = window.localStorage.getItem(MONTH_STORAGE_KEY);
@@ -160,6 +171,8 @@ if (monthPicker) {
         if (/^[0-9]{4}-[0-9]{2}$/.test(value)) {
             persistSelectedMonth(value);
             updateMonthUI(value);
+            // Ay değişince dashboard alt başlığını güncellemek için yeniden çiz
+            renderDashboard();
         }
     });
 }
@@ -264,7 +277,9 @@ function renderDashboard() {
         const cardEl = card.querySelector(".team-card");
         cardEl.dataset.team = cfg.key;
         card.querySelector(".team-card__title").textContent = cfg.title;
-        card.querySelector(".team-card__subtitle").textContent = cfg.subtitle;
+        // Seçilen aya göre alt başlığı dinamik ayarla
+        const selectedMonth = loadSelectedMonth() ?? getCurrentMonthValue();
+        card.querySelector(".team-card__subtitle").textContent = formatTableSubtitle(selectedMonth);
 
         const isBalanced = Boolean(layoutPrefs[cfg.key]);
 
