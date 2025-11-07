@@ -277,9 +277,7 @@ function renderDashboard() {
         const cardEl = card.querySelector(".team-card");
         cardEl.dataset.team = cfg.key;
         card.querySelector(".team-card__title").textContent = cfg.title;
-        // Seçilen aya göre alt başlığı dinamik ayarla
-        const selectedMonth = loadSelectedMonth() ?? getCurrentMonthValue();
-        card.querySelector(".team-card__subtitle").textContent = formatTableSubtitle(selectedMonth);
+        // Alt başlık kaldırıldı; artık herhangi bir metin yerleştirilmiyor.
 
         const isBalanced = Boolean(layoutPrefs[cfg.key]);
 
