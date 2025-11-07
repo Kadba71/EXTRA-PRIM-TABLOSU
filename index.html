@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personel Prim Paneli</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/style.css" />
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand__title">Prim Paneli</span>
+                <span class="brand__subtitle">V.İ.P AS &amp; Dış Ekip</span>
+            </div>
+            <nav class="topbar__nav" aria-label="Görünüm seçimi">
+                <button class="nav-btn nav-btn--active" data-target="dashboard" type="button" aria-current="page">Ana Sayfa</button>
+                <button class="nav-btn" data-target="admin" type="button">Yönetim Paneli</button>
+            </nav>
+            <div class="topbar__tools">
+                <button id="toggle-align" type="button" class="align-toggle-btn" aria-pressed="false" title="Sütunları eşitle">Ortala</button>
+                <label class="month-picker__wrap" for="month-picker" title="Ay seç">
+                    <span class="month-picker__label">Ay</span>
+                    <input id="month-picker" class="month-picker" type="month" />
+                </label>
+                <span id="month-label" class="month-label" aria-live="polite"></span>
+            </div>
+        </header>
+        <div class="main-layout">
+            <aside class="sidebar" aria-label="Departmanlar">
+                <h2 class="sidebar__title">Departmanlar</h2>
+                <ul id="team-selector" class="team-selector" role="list"></ul>
+            </aside>
+            <main class="content">
+                <section id="dashboard" class="view view--active" aria-labelledby="dashboard-heading">
+                    <h1 id="dashboard-heading" class="visually-hidden">Ana Sayfa</h1>
+                    <div class="dashboard" id="dashboard-container"></div>
+                </section>
+
+                <section id="admin" class="view" aria-labelledby="admin-heading">
+                    <div class="admin-head">
+                        <div>
+                            <h1 id="admin-heading">Yönetim Paneli</h1>
+                            <p class="admin-subtitle">Seçili departman personel ve prim tutarlarını yönetin.</p>
+                        </div>
+                        <div class="admin-actions">
+                            <button id="pull-sample" type="button" class="ghost-btn">Örnek Verileri Yükle</button>
+                            <button id="reset-data" type="button" class="ghost-btn ghost-btn--danger">Tümünü Temizle</button>
+                        </div>
+                    </div>
+                    <!-- Tablo Ayarları (Her ekip için kaçıncı satırdan sonra yeni sütuna geçileceği) -->
+                    <section id="table-settings" class="table-settings is-collapsed" aria-labelledby="table-settings-toggle">
+                        <button id="table-settings-toggle" type="button" class="table-settings__toggle" aria-expanded="false" aria-controls="table-settings-content" aria-label="Tablo Ayarlarını Aç/Kapat">
+                            <span class="table-settings__toggle-label">Tablo Ayarları</span>
+                            <span class="table-settings__toggle-icon" aria-hidden="true">▼</span>
+                        </button>
+                        <div id="table-settings-content" class="table-settings__content" hidden>
+                            <ul class="table-settings__list" role="list"></ul>
+                            <p class="table-settings__hint">Her ekip için belirlediğiniz değere ulaşıldığında tablo bir sonraki sütuna geçer. (Değer &ge; 1)</p>
+                        </div>
+                    </section>
+                    <div id="admin-container" class="admin-panels"></div>
+                    <div class="admin-footer">
+                        <button id="save-data" type="button" class="primary-btn">Kaydet ve Göster</button>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <footer class="footer">
+            <span>© <span id="year"></span> Prim Paneli</span>
+            <span class="footer__note">Veriler tarayıcıda saklanır (localStorage)</span>
+        </footer>
+    </div>
+
+    <template id="team-card-template">
+        <article class="team-card">
+            <header class="team-card__header">
+                <h2 class="team-card__title"></h2>
+                <p class="team-card__subtitle"></p>
+            </header>
+            <div class="team-card__table-wrapper">
+                <table class="team-card__table" role="table" aria-label="Prim listesi">
+                    <thead>
+                        <tr class="table-head"></tr>
+                    </thead>
+                    <tbody class="table-body"></tbody>
+                </table>
+            </div>
+            <footer class="team-card__footer">
+                <div class="footer-stat">
+                    <span class="footer-stat__label">Toplam Personel</span>
+                    <span class="footer-stat__value"></span>
+                </div>
+                <div class="footer-stat">
+                    <span class="footer-stat__label">Toplam Prim</span>
+                    <span class="footer-stat__value"></span>
+                </div>
+            </footer>
+        </article>
+    </template>
+
+    <template id="admin-panel-template">
+        <section class="admin-panel">
+            <header class="admin-panel__header">
+                <div>
+                    <h2 class="admin-panel__title"></h2>
+                    <p class="admin-panel__subtitle"></p>
+                </div>
+            </header>
+            <div class="admin-panel__body">
+                <div class="admin-import">
+                    <div class="admin-import__controls">
+                        <button type="button" class="ghost-btn admin-import__btn">Excel'den Yükle</button>
+                        <input type="file" class="admin-import__input" accept=".xlsx,.xls" hidden />
+                    </div>
+                    <p class="admin-import__hint">A sütunu personel adları, B sütunu prim tutarları olmalıdır.</p>
+                </div>
+                <div class="admin-list headers">
+                    <span>Personel Adı</span>
+                    <span>Prim Hakedişi (₺)</span>
+                    <span class="sr-only">İşlem</span>
+                </div>
+                <div class="admin-list entries"></div>
+                <button type="button" class="ghost-btn add-entry">+ Personel Satırı Ekle</button>
+            </div>
+        </section>
+    </template>
+
+    <template id="admin-row-template">
+        <div class="admin-row">
+            <label class="field">
+                <span class="field__label">Personel Adı</span>
+                <input type="text" name="name" placeholder="Örn. Ayşe" required />
+            </label>
+            <label class="field">
+                <span class="field__label">Prim (₺)</span>
+                <input type="number" name="amount" placeholder="Örn. 4500" min="0" step="0.01" required />
+            </label>
+            <div class="row-actions">
+                <button type="button" class="row-btn row-btn--ghost move-up" aria-label="Yukarı Taşı" title="Yukarı Taşı">▲</button>
+                <button type="button" class="row-btn row-btn--ghost move-down" aria-label="Aşağı Taşı" title="Aşağı Taşı">▼</button>
+                <button type="button" class="row-btn row-btn--danger delete-row" aria-label="Satırı Sil" title="Satırı Sil">🗑</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="./assets/script.js" type="module"></script>
+    <div id="live-region" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

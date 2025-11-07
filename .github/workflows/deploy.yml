@@ -1,0 +1,20 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Railway CLI resmi container
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      # GitHub repo Secrets altında eklenmeli
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      # Servis ID'yi secrets veya vars olarak sağlayın (ör. RAILWAY_SERVICE_ID)
+      SVC_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy with Railway CLI
+        run: railway up --service=${{ env.SVC_ID }}
